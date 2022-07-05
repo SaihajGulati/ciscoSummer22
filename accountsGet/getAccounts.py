@@ -8,10 +8,20 @@ TMOBILE_USERNAME = "AdiTMOUSSPTechSupport"
 ROGERS_USERNAME = "AKSPAdminRogers"
 TMOBILE_API_KEY = "4f61628d-012e-4536-b3d0-c136faa911fd"
 ROGERS_API_KEY = "d75bbcfb-8424-4e1e-a7fa-9030aa81f259"
+
+##what page to get accounts from
 myPageNumber = 1
+
+##store account details
 tempArray = []
+
+##total number of accounts counter
 totalLen = 0
+
+##boolean to check if have reaches last page of accounts list
 isItLastPage = False
+
+##runs until past last page
 while (not isItLastPage):
     parameters= {'pageNumber': myPageNumber}
     myResponse = requests.get(url,auth=(ROGERS_USERNAME,ROGERS_API_KEY), params=parameters)
