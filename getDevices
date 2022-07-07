@@ -1,0 +1,71 @@
+import requests
+import json 
+import base64 
+import pprint 
+					
+accUrl = 'https://restapi1.jasper.com/rws/api/v1/accounts'
+devUrl = 'https://restapi1.jasper.com/rws/api/v1/devices'
+TMOBILE_USERNAME = "AdiTMOUSSPTechSupport"
+ROGERS_USERNAME = "AKSPAdminRogers"
+TMOBILE_API_KEY = "4f61628d-012e-4536-b3d0-c136faa911fd"
+ROGERS_API_KEY = "d75bbcfb-8424-4e1e-a7fa-9030aa81f259"
+
+##what page to get accounts from
+accPage = 1
+
+##store account details
+tempArray = []
+
+##total number of accounts counter
+totalLen = 0
+
+##boolean to check if have reaches last page of accounts list
+accLastPage = False
+
+
+##runs until past last page
+##while (not accLastPage):
+while (accPage <= 2):
+    parametersAcc = {'pageNumber': accPage}
+    responseAcc = requests.get(accUrl,auth=(ROGERS_USERNAME,ROGERS_API_KEY), params=parametersAcc)
+    # For successful API call, response code will be 200 (OK)
+    if(responseAcc.ok):
+        # Loading the response data into a dict variable
+        # json.loads takes in only binary or string variables so using content to fetch binary content
+        # Loads (Load String) takes a Json file and converts into python data structure (dict or list, depending on JSON)
+        jData = json.loads(responseAcc.content)
+        pp=pprint.PrettyPrinter(indent=4)
+        tempAccounts = jData["accounts"]
+        numAccounts = len(tempAccounts)
+        for i in range (0, numAccounts):
+            myAccountId = tempAccounts[i]['accountId']
+            myAccountName = tempAccounts[i]['accountName']
+            print(myAccountName + ' ' + str(myAccountId))
+            isItLastPage = jData["lastPage"]
+            
+            # Do same thing but get devices
+            devLastPage = False
+            devPage = 1
+            date = '2016-04-18T17:31:34+00:00'
+            accDeviceCount = 0
+            while (devPage <= 2):
+                parametersDev = {'pageNumber': devPage, 'accountId' : myAccountId, 'modifiedSince': date}
+                responseDev = requests.get(devUrl,auth=(ROGERS_USERNAME,ROGERS_API_KEY), params=parametersDev)
+                if(responseDev.ok):
+                    jData = json.loads(responseDev.content)
+                    tempDevices = jData['devices']
+                    accDeviceCount += len(tempDevices)
+                    pp = pprint.PrettyPrinter(indent=4)
+                    devLastPage = jData['lastPage']
+                    devPage += 1
+                else:
+                # If response code is not ok (200), print the resulting http error code with description
+                    print("Failure")
+                    responseDev.raise_for_status()
+            print(accDeviceCount)
+        accPage += 1
+            # pp.pprint(jData.count("accountId"))
+    else:
+        # If response code is not ok (200), print the resulting http error code with description
+        print("Failure")
+        responseAcc.raise_for_status()
